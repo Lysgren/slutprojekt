@@ -1,0 +1,86 @@
+class KnegError extends Error {}
+
+class InvalidBody extends KnegError {
+  // 400 Bad request
+  constructor(fields) {
+    super()
+    this.fields = fields
+    this.message = `Invalid Body, required fields: ${this.fields.join(', ')}`
+    this.errorCode = 400
+  }
+}
+
+class InvalidParams extends KnegError {
+  // 400 Bad request
+  constructor(fields) {
+    super()
+    this.fields = fields
+    this.message = `Invalid Params, require fields: ${this.fields.join(', ')}`
+    this.errorCode = 400
+  }
+}
+
+class BadRole extends KnegError {
+  // 403 Forbidden
+  constructor() {
+    super()
+    this.message = 'You do not have access to this function'
+    this.errorCode = 403
+  }
+}
+
+class InvalidCredentials extends KnegError {
+  // 403 Forbidden
+  constructor() {
+    super()
+    this.message = 'Invalid credentials'
+    this.errorCode = 403
+  }
+}
+
+class InvalidToken extends KnegError {
+  // 403 Forbidden
+  constructor() {
+    super()
+    this.message = 'Invalid token'
+    this.statusCode = 403
+  }
+}
+
+class NoAuthorization extends KnegError {
+  // 400 Bad request
+  constructor() {
+    this.message = 'No authorization given in request',
+    this.statusCode = 400
+  }
+}
+
+class Unauthorized extends KnegError {
+  // 401 Unauthorized
+  constructor() {
+    super()
+    this.message = 'Unauthorized, Maybe better luck next time.'
+    this.errorCode = 401
+  }
+}
+
+class DatabaseError extends KnegError {
+  // 500 Internal Server Error
+  constructor() {
+    super()
+    this.message = 'Something unexpected is happening to the database'
+    this.statusCode = 500
+  }
+}
+
+module.exports = {
+  KnegError,
+  InvalidBody,
+  InvalidParams,
+  BadRole,
+  InvalidCredentials,
+  InvalidToken,
+  NoAuthorization,
+  Unauthorized,
+  DatabaseError
+}
