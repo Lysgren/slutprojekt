@@ -50,6 +50,7 @@ class InvalidToken extends KnegError {
 class NoAuthorization extends KnegError {
   // 400 Bad request
   constructor() {
+    super()
     this.message = 'No authorization given in request',
     this.statusCode = 400
   }

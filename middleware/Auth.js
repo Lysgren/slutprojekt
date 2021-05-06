@@ -8,7 +8,7 @@ const correctToken = (authorization) => {
   }
   
   const token = authorization.replace('Bearer ', '')
-  const { id, email, role } = jwt.verify(token, process.env.PASSWORD_ENCRYPTION)
+  const { id, email, role } = jwt.verify(token, process.env.ENCRYPTION)
   return { id, email, role }
 }
 

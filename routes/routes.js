@@ -5,7 +5,7 @@ const { UserController, MessageController, TaskController, GeneralController } =
 
 // General endpoints
 router.post('/authenticate', GeneralController.Authenticate)
-router.get('/me', GeneralController.GetMe)
+router.get('/me', Auth.Client, GeneralController.GetMe)
 router.patch('/me', GeneralController.PatchMe)
 router.get('/users', UserController.GetUsers) // Ej tillgänglig för clients
 router.get('/users/:id', UserController.SpecificUser)
