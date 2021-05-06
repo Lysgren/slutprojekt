@@ -5,6 +5,7 @@ const PORT = process.env.PORT || 8000
 
 const DatabaseConnection = require('./database/mongo')
 const Logger = require('./middleware/Logger')
+
 const errorHandler = require('./middleware/errorHandler')
 const routes = require('./routes/routes')
 

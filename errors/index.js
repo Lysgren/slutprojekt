@@ -6,7 +6,7 @@ class InvalidBody extends KnegError {
     super()
     this.fields = fields
     this.message = `Invalid Body, required fields: ${this.fields.join(', ')}`
-    this.errorCode = 400
+    this.statusCode = 400
   }
 }
 
@@ -16,7 +16,7 @@ class InvalidParams extends KnegError {
     super()
     this.fields = fields
     this.message = `Invalid Params, require fields: ${this.fields.join(', ')}`
-    this.errorCode = 400
+    this.statusCode = 400
   }
 }
 
@@ -25,7 +25,7 @@ class BadRole extends KnegError {
   constructor() {
     super()
     this.message = 'You do not have access to this function'
-    this.errorCode = 403
+    this.statusCode = 403
   }
 }
 
@@ -34,7 +34,7 @@ class InvalidCredentials extends KnegError {
   constructor() {
     super()
     this.message = 'Invalid credentials'
-    this.errorCode = 403
+    this.statusCode = 403
   }
 }
 
@@ -60,7 +60,16 @@ class Unauthorized extends KnegError {
   constructor() {
     super()
     this.message = 'Unauthorized, Maybe better luck next time.'
-    this.errorCode = 401
+    this.statusCode = 401
+  }
+}
+
+class UserExists extends KnegError {
+  // 401 Unauthorized
+  constructor() {
+    super()
+    this.message = 'Error, user already exists'
+    this.statusCode = 401
   }
 }
 
@@ -82,5 +91,6 @@ module.exports = {
   InvalidToken,
   NoAuthorization,
   Unauthorized,
+  UserExists,
   DatabaseError
 }

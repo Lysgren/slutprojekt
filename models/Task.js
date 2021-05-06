@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
+const User = require('./User')
 const { Schema } = mongoose
+const { DatabaseError } = require('../errors')
 
 const { ObjectId } = mongoose.Schema.Types
 
@@ -14,12 +16,29 @@ const taskSchema = new Schema({
   worker: {
     type: ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    validate: async (id) => {
+      const user = await User.findOne({_id: id})
+      return user.role === 'WORKER'
+    }
   },
   client: {
     type: ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    validate: async (id) => {
+      const user = await User.findOne({_id: id})
+      return user.role === 'CLIENT'
+    }
+  }
+})
+
+taskSchema.post('save', (error, doc, next) => {
+  if (error.name === 'MongoError' && error.code === 11000) {
+    console.log(error)
+    throw new DatabaseError()
+  } else {
+    next()
   }
 })
 

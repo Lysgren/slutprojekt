@@ -36,7 +36,7 @@ const Worker = (req, res, next) => {
     if (role === 'WORKER' || role === 'ADMIN') {
       req.id = id
       req.email = email
-      req.role = role    
+      req.role = role
       next()
     } else {
       throw new BadRole()
@@ -53,7 +53,7 @@ const Admin = (req, res, next) => {
     if (role === 'ADMIN') {
       req.id = id
       req.email = email
-      req.role = role   
+      req.role = role
       next()
     } else {
       throw new BadRole()

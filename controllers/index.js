@@ -1,7 +1,11 @@
-const AdminController = require('./adminController')
+const UserController = require('./userController')
+const MessageController = require('./messageController')
+const TaskController = require('./taskController')
 const GeneralController = require('./generalController')
 
 module.exports = {
-    AdminController,
+    UserController,
+    MessageController,
+    TaskController,
     GeneralController
 }
