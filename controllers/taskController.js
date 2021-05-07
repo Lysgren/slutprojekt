@@ -58,8 +58,7 @@ const GetTasks = async (req, res, next) => {
     console.log(email)
     const { _id } = await User.findOne({email})
     const worker = req.id
-    // , client:_id => lyckas inte filtrera på client
-    const taskList = await Task.find({worker})
+    const taskList = await Task.find({worker, client:_id})
     res.json({ message: 'Done', taskList })
   } catch {
     next(error)
