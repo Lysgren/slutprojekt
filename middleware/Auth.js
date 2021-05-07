@@ -8,8 +8,13 @@ const correctToken = (authorization) => {
   }
   
   const token = authorization.replace('Bearer ', '')
-  const { id, email, role } = jwt.verify(token, process.env.ENCRYPTION)
-  return { id, email, role }
+
+  try {
+    const { id, email, role } = jwt.verify(token, process.env.ENCRYPTION)
+    return { id, email, role }
+  } catch (error) {
+    throw new InvalidToken()
+  }
 }
 
 const Client = (req, res, next) => {

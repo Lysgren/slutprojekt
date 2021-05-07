@@ -4,9 +4,9 @@ const Auth = require('../middleware/Auth')
 const { UserController, MessageController, TaskController, GeneralController } = require('../controllers/index')
 
 // General endpoints
-router.post('/authenticate', GeneralController.Authenticate)
-router.get('/me', Auth.Client, GeneralController.GetMe)
-router.patch('/me', GeneralController.PatchMe)
+router.post('/authenticate', GeneralController.Authenticate) // Done
+router.get('/me', Auth.Client, GeneralController.GetMe) // Done
+router.patch('/me', Auth.Client, GeneralController.PatchMe) // Done
 router.get('/users', UserController.GetUsers) // Ej tillgänglig för clients
 router.get('/users/:id', UserController.SpecificUser)
 

@@ -1,8 +1,7 @@
-// import model
-const { InvalidBody, InvalidParam } = require('../errors')
-const Login = require('../models/Authenticate')
+const User = require('../models/User')
+const bcrypt = require('bcrypt')
+const { InvalidBody, Unauthorized } = require('../errors')
 
-// Auth User
 const Authenticate = async(req, res, next) => {
   try {
     const { email, password } = req.body
@@ -11,28 +10,39 @@ const Authenticate = async(req, res, next) => {
       throw new InvalidBody(['email', 'password'])
     }
 
-    const token = await Login(email, password)
+    const user = await User.findOne({ email })
+
+    if ( !user ) {
+      throw new Unauthorized()
+    }
+
+    const token = await user.Authenticate(password)
+
     res.json({ message: 'Succesfully logged in', token: token })
   } catch (error) {
     next(error)
   }
 }
 
-// Auth hämta inloggad User
 const GetMe = (req, res) => {
-  const tokenData = {
-    id: req.id,
-    email: req.email,
-    role: req.role
-  }
-
-  console.log('getMe')
-  res.json({ message: 'Done', tokenData })
+  res.json({ Success: 'Done!', userData: { email: req.email, role: req.role }})
 }
-// redigera inloggad User
-const PatchMe = (req, res) => {
-  console.log('patchMe')
-  res.json({ message: 'Done' })
+
+const PatchMe = async(req, res, next) => {
+  try {
+    const { newPassword } = req.body
+
+    if ( !newPassword ) {
+      throw new InvalidBody(['newPassword'])
+    }
+    
+    const hashedPassword = bcrypt.hashSync(newPassword, 10)
+    await User.updateOne({ email: req.email }, { password: hashedPassword })
+
+    res.json({ message: 'Succesfully changed password' })
+  } catch (error) {
+    next(error)
+  }
 }
 
 module.exports = {
