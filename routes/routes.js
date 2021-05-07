@@ -14,7 +14,7 @@ router.get('/users/:id', UserController.SpecificUser)
 router.post('/users', Auth.Admin, UserController.RegisterUser) // Done
 router.patch('/users/:id', UserController.UpdateUser)
 router.delete('/users/:id', UserController.DeleteUser)
-router.delete('/tasks/:id', TaskController.DeleteTask)
+router.delete('/tasks/:id', Auth.Admin, TaskController.DeleteTask)
 
 // Worker Endpoints
 router.post('/tasks', TaskController.CreateTask)

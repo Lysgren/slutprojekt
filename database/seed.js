@@ -35,13 +35,12 @@ const main = async () => {
     const elias = await SeedUsers('Elias@Elias.se', bcrypt.hashSync('password', 10), 'CLIENT')
   
     const taskOne = await SeedTasks('Big house', 'Its an awesome house with lots of rooms', david._id, simon._id)
+    console.log(taskOne._id)
+
     const taskTwo = await SeedTasks('Pie', 'Bake a bananpaj', bananpaj._id, oscar._id)
     const taskThree = await SeedTasks('Hotdog', 'Grilla korv', grillkorv._id, elias._id)
     const taskFour = await SeedTasks('Workstuff', 'aaaaaaaaaaaaaaaaaa', david._id, elias._id)
 
-    // const badTask = await SeedTasks('I am wrong!', 'Client does not exist', bananpaj._id, 1337)
-  
-    // console.log(elias._id)
   } catch (error) {
     console.log(error)
   }

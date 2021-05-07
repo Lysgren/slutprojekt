@@ -14,6 +14,10 @@ app.use(Logger)
 app.use(routes)
 app.use(errorHandler)
 
+app.use((req, res) => {
+  res.status(404).json({ message: '404: Page not Found' })
+})
+
 app.listen(PORT, async() => {
   await DatabaseConnection()
   console.log(`App is running on port ${PORT}`)
