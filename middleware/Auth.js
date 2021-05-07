@@ -37,7 +37,7 @@ const Client = (req, res, next) => {
 const Worker = (req, res, next) => {
   try {
     const { id, email, role } = correctToken(req.headers.authorization)
-
+    console.log(role)
     if (role === 'WORKER' || role === 'ADMIN') {
       req.id = id
       req.email = email

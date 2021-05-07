@@ -7,11 +7,11 @@ const { UserController, MessageController, TaskController, GeneralController } =
 router.post('/authenticate', GeneralController.Authenticate) // Done
 router.get('/me', Auth.Client, GeneralController.GetMe) // Done
 router.patch('/me', Auth.Client, GeneralController.PatchMe) // Done
-router.get('/users', UserController.GetUsers) // Ej tillgänglig för clients
+router.get('/users', Auth.Worker, UserController.GetUsers) // Ej tillgänglig för clients
 router.get('/users/:id', UserController.SpecificUser)
 
 // Admin Endpoints
-router.post('/users', UserController.RegisterUser) // Done
+router.post('/users', Auth.Admin, UserController.RegisterUser) // Done
 router.patch('/users/:id', UserController.UpdateUser)
 router.delete('/users/:id', UserController.DeleteUser)
 router.delete('/tasks/:id', TaskController.DeleteTask)

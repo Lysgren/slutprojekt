@@ -2,15 +2,38 @@ const User = require('../models/User')
 const { InvalidBody, InvalidParam } = require('../errors')
 
 // Admin, Worker: Listar användare med query params
-const GetUsers = (req, res) => {
-  console.log('users')
-  res.json({message: 'Done'})
+const GetUsers = async (req, res, next) => {
+  const limit = Number(req.query.limit) || 10
+  const offset = (Number(req.query.page) - 1) * limit || 0
+  const role = req.query.role
+  const search = req.query.search
+  let users
+  try {
+    if (role) {
+      users = await User.find({role}, {}, { skip: offset, limit })
+    } else {
+      users = await User.find({}, {}, { skip: offset, limit })
+    }
+    if (search) {
+      const filteredUsers = users.filter(user => user.email.includes(search))
+      res.json({ users: filteredUsers })
+    } else {
+      res.json({ users })
+    }
+  } catch (error) {
+    next(error)
+  }
 }
 
 // General: Hämtar en användare
-const SpecificUser =  (req, res) => {
-  console.log('specificUser')
-  res.json({message: 'Done'})
+const SpecificUser = async (req, res, next) => {
+  const id = req.params.id
+  try {
+    const user = await User.find({_id: id})
+    res.json({user})
+  } catch(error) {
+    next(error)
+  }
 }
 
 // Admin: Skapar en ny användare
@@ -18,13 +41,13 @@ const RegisterUser = async (req, res, next) => {
   try {
     const { email, password, role } = req.body
 
-    if ( !email || !password || !role ) { throw new InvalidBody() }
+    if (!email || !password || !role) { throw new InvalidBody() }
 
     const user = new User({ email, password, role })
 
     await user.save()
 
-    res.json({success: 'User was created successfully', user })
+    res.json({ success: 'User was created successfully', user })
 
   } catch (error) {
     next(error)
@@ -33,14 +56,13 @@ const RegisterUser = async (req, res, next) => {
 
 // Admin: Uppdaterar användaren
 const UpdateUser = (req, res) => {
-  console.log('update')
-  res.json({message: 'Done'})
+  
 }
 
 // Admin: Tar bort en användare
 const DeleteUser = (req, res) => {
   console.log('delete')
-  res.json({message: 'Done'})
+  res.json({ message: 'Done' })
 }
 
 module.exports = {
