@@ -1,6 +1,7 @@
 const Task = require('../models/Task')
 const { InvalidParams, DoesNotExist } = require('../errors')
 const { parseQuery } = require("../middleware/parseQuery")
+const User = require('../models/User')
 
 // Admin: Raderar ett ärende
 const DeleteTask = async(req, res, next) => {
