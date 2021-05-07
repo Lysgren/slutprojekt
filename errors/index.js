@@ -74,6 +74,15 @@ class UserExists extends KnegError {
   }
 }
 
+class DoesNotExist extends KnegError {
+  // 500 Unauthorized
+  constructor() {
+    super()
+    this.message = 'Error, the resource does not exist'
+    this.statusCode = 500
+  }
+}
+
 class DatabaseError extends KnegError {
   // 500 Internal Server Error
   constructor() {
@@ -93,5 +102,6 @@ module.exports = {
   NoAuthorization,
   Unauthorized,
   UserExists,
+  DoesNotExist,
   DatabaseError
 }
