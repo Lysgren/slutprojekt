@@ -55,14 +55,39 @@ const RegisterUser = async (req, res, next) => {
 }
 
 // Admin: Uppdaterar användaren
-const UpdateUser = (req, res) => {
-  
+const UpdateUser = async (req, res, next) => {
+  try {
+    const id = req.params.id
+    const fields = ['email', 'role']
+    const postedFields = fields.filter(field => req.body[field])
+    const updateData = {}
+
+    if (req.body.password) {
+      const hashedPassword = bcrypt.hashSync(newPassword, 10)
+      updateData.password = hashedPassword
+    }
+
+    for (const field of postedFields) {
+      updateData[field] = req.body[field]
+    }
+
+    await User.updateOne({ _id: id }, updateData)
+
+    res.json({ message: 'Succesfully updated user' })
+  } catch (error) {
+    next(error)
+  }
 }
 
 // Admin: Tar bort en användare
-const DeleteUser = (req, res) => {
-  console.log('delete')
-  res.json({ message: 'Done' })
+const DeleteUser = async (req, res, next) => {
+  const id = req.params.id
+  try {
+    const user = await User.deleteOne({_id: id})
+    res.json({ message: 'Succesfully deleted user' })
+  } catch (error) {
+    next(error)
+  }
 }
 
 module.exports = {
