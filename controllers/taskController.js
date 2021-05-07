@@ -1,33 +1,84 @@
 const Task = require('../models/Task')
+const User = require('../models/User')
+const { InvalidBody, InvalidParam } = require('../errors')
+const { parseQuery } = require("../middleware/parseQuery")
 
 // Admin: Raderar ett ärende
 const DeleteTask = (req, res, next) => {
   console.log('DeleteTasks')
-  res.json({message: 'Done'})
+  res.json({ message: 'Done' })
 }
 
 // Worker: Skapar ett nytt ärende
-const CreateTask = (req, res, next) => {
-  console.log('CreateTask')
-  res.json({message: 'Done'})
+const CreateTask = async (req, res, next) => {
+  try {
+    const { title, description, email } = req.body
+    if (!title || !description || !email) {
+      throw new InvalidBody(['title', 'description', 'client'])
+    }
+    const worker = req.id
+    const { _id } = await User.findOne({email})
+    const task = new Task({
+      title,
+      description,
+      worker,
+      client: _id,
+    })
+
+    await task.save()
+
+    res.json({ message: 'Done', task })
+  } catch (error) {
+    next(error)
+  }
 }
 
 // Worker, Clients: Hämtar arbetarens ärenden
-const GetTasks = (req, res, next) => {
-  console.log('GetWorkerTasks')
-  res.json({message: 'Done'})
+const GetTasks = async (req, res, next) => {
+  try {
+    const { page, pageSize, email } = parseQuery(req.query)
+    if (!page || !pageSize || !email) {
+      throw new InvalidParam(["page", "pageSize", "email"])
+    }
+    console.log(email)
+    const { _id } = await User.findOne({email})
+    const worker = req.id
+    // , client:_id => lyckas inte filtrera på client
+    const taskList = await Task.find({worker})
+    res.json({ message: 'Done', taskList })
+  } catch {
+    next(error)
+  }
 }
 
 // Worker, Client : Hämtar ett ärende
-const GetTaskById = (req, res, next) => {
-  console.log('GetTask')
-  res.json({message: 'Done'})
+const GetTaskById = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    if (!id) {
+      throw new InvalidParam(['id'])
+    }
+    const task = await Task.findOne({_id:id})
+    console.log(task)
+    res.json({ message: 'Done', task })
+  } catch (error) {
+    next(error)
+  }
 }
 
 // Worker: Uppdaterar ett ärende
 const PatchTask = (req, res, next) => {
-  console.log('PatchTask')
-  res.json({message: 'Done'})
+  try {
+    // body title ? description ? worker id ?
+    const { id } = req.params
+    if (!id) {
+      throw new InvalidParam(['id'])
+    }
+    // patch model Task update
+    res.json({ message: 'Done' })
+  } catch {
+    next(error)
+  }
 }
 
 module.exports = {
@@ -35,5 +86,5 @@ module.exports = {
   CreateTask,
   GetTasks,
   GetTaskById,
-  PatchTask
+  PatchTask,
 }
