@@ -35,7 +35,10 @@ const taskSchema = new Schema({
     }
     */
   },
-
+  done: {
+    type: Boolean,
+    default: false
+  }
 })
 // skurt
 taskSchema.post('save', (error, doc, next) => {
