@@ -12,7 +12,7 @@ router.get('/users/:id', UserController.SpecificUser)
 
 // Admin Endpoints
 router.post('/users', Auth.Admin, UserController.RegisterUser) // Done
-router.patch('/users/:id', UserController.UpdateUser)
+router.patch('/users/:id', Auth.Admin, UserController.UpdateUser)
 router.delete('/users/:id', UserController.DeleteUser)
 router.delete('/tasks/:id', Auth.Admin, TaskController.DeleteTask)
 
