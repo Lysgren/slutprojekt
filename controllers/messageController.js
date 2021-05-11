@@ -1,24 +1,78 @@
 const Message = require('../models/Message')
+const { parseQuery } = require('../middleware/parseQuery')
 
-// Worker, Clienter: Hämtar meddalanden från ärenden
-const GetMessageById = (req, res, next) => {
-    console.log('GetMessageById')
-    res.json({message: 'Done'})
+const { InvalidBody, InvalidParams, InvalidCredentials } = require('../errors')
+const Task = require('../models/Task')
+
+
+const MessageAuth = async(taskId, clientId, role) => {
+  const task = await Task.findOne({ _id: taskId })
+
+  if (role === 'CLIENT' && task.client != clientId) {
+    return false
   }
-// Worker, Clienter: Postar meddalanden från ärenden
-  const PostMessageById = async (req, res, next) => {
-    const { messageText, from, to } = req.body
-    const { taskId } = req.params.taskId
+
+  return true
+}
+
+// Worker, Clienter: Hämtar meddelanden från ett specifikt ärende
+const GetMessageById = async(req, res, next) => {
+  try {
+    const taskId = req.params.taskId
+
+    if (!taskId) {
+      throw new InvalidParams(['taskId'])
+    }
+    
+    // const { page, pageSize } = parseQuery(req.query)
+    // console.log(page, pageSize)
+
+    let response = await Message.find({ task: taskId } )
+
+    const auth = await MessageAuth(taskId, req.id, req.role)
+    console.log('authentication to se is ', auth)
+
+    if ( !auth ) {
+      throw new InvalidCredentials()
+    }
+
+    if (response.length == 0) {
+      response = 'No messages found'
+    }
+
+    res.json({ message: 'Messages found to task', response })
+
+  } catch (error) {
+    next(error)
+  }
+}
+// Worker, Clienter: Postar meddelanden till ett ärende
+const PostMessageById = async(req, res, next) => {
+  try {
+    const { messageText } = req.body
+    if (!messageText) {
+      throw new InvalidBody(['messageText'])
+    }
+
+    console.log(req.params.taskId)
+    const taskId = req.params.taskId
+
+    if (!taskId) {
+      throw new InvalidParams(['taskId'])
+    }
 
     const message = new Message({
       message: messageText,
-      from,
-      to,
+      from: req.id,
       task: taskId
     })
 
-    await message.save()
-    res.json({message})
+    const response = await message.save()
+    res.json({ message: 'Succesfully posted message!', response })
+
+  } catch (error) {
+    next(error)
+  }
 }
 
 // Worker, Clienter: Deletar meddalanden från ärenden

@@ -22,9 +22,9 @@ router.get('/tasks', Auth.Worker, TaskController.GetTasks)
 router.get('/tasks/:id', Auth.Worker, TaskController.GetTaskById)
 router.patch('/tasks/:id', Auth.Worker, TaskController.PatchTask)
 // Endpoint is in Admin endpoints. router.delete('/users/:id')
-router.get('/tasks/:id/messages', MessageController.GetMessageById)
-router.post('/tasks/:id/messages', MessageController.PostMessageById)
-router.delete('/tasks/:id/messages', MessageController.DeleteMessageById)
+router.get('/tasks/:taskId/messages', Auth.Client, MessageController.GetMessageById)
+router.post('/tasks/:taskId/messages', Auth.Client, MessageController.PostMessageById)
+router.delete('/messages/:id', Auth.Client, MessageController.DeleteMessageById)
 // To be fixed router.post('/tasks/:id/image')
 
 // Client Endpoints
