@@ -19,13 +19,12 @@ const messageSchema = new mongoose.Schema({
   from: {
     type: ObjectId,
     ref: 'User',
-    required: true,
-/* 
-    validate: async (id) => {
+    required: true, 
+    validate: async function (id) {
       const task = await Task.findOne({_id: this.task})
-      return task.worker == id || task.client == id
+      return task.worker.toString() == id || task.client.toString() == id
     }
-     */
+     
   }
 })
 
