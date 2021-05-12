@@ -75,11 +75,11 @@ class UserExists extends KnegError {
 }
 
 class DoesNotExist extends KnegError {
-  // 500 Unauthorized
+  // 404 Does not exist
   constructor() {
     super()
     this.message = 'Error, the resource does not exist'
-    this.statusCode = 500
+    this.statusCode = 404
   }
 }
 

@@ -35,7 +35,7 @@ const main = async () => {
     const elias = await SeedUsers('Elias@Elias.se', bcrypt.hashSync('password', 10), 'CLIENT')
   
     const taskOne = await SeedTasks('Big house', 'Its an awesome house with lots of rooms', david._id, oscar._id)
-    // console.log('Task id: ', taskOne._id)
+    console.log('Task id: ', taskOne._id.toString())
 
     const taskTwo = await SeedTasks('Pie', 'Bake a bananpaj', bananpaj._id, oscar._id)
     const taskThree = await SeedTasks('Hotdog', 'Grilla korv', grillkorv._id, elias._id)
