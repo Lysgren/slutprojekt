@@ -1,17 +1,6 @@
 const Task = require('../models/Task')
 const Message = require('../models/Message')
-const { InvalidBody, InvalidParams, InvalidCredentials, InvalidQuery, DoesNotExist } = require('../errors')
-
-const MessageAuth = async(taskId, clientId, role) => {
-  const task = await Task.findOne({ _id: taskId })
-  if ( !task ) {
-    throw new DoesNotExist()
-  }
-
-  if (role === 'CLIENT' && !task.client.equals(clientId)) {
-    throw new InvalidCredentials()
-  }
-}
+const { InvalidBody, InvalidParams, InvalidQuery } = require('../errors')
 
 // Worker, Clienter: Hämtar meddelanden från ett specifikt ärende
 const GetMessageById = async(req, res, next) => {
@@ -27,13 +16,18 @@ const GetMessageById = async(req, res, next) => {
       throw new InvalidQuery(['page', 'pageSize'])
     }
 
+    // Check if the supplied Id is a valid Mongoose id
     Message.CheckId(taskId)
 
-    await MessageAuth(taskId, req.id, req.role)
-    let response = await Message.GetPage(taskId, page, pageSize)
+    // Check if the task exists
+    const task = await Task.CheckIfExists(taskId)
 
+    // Check if the user has the right to post messages to the task
+    Task.RightToTask(req.role, task.client, req.id)
+
+    let response = await Message.GetPage(taskId, page, pageSize)
     if (response.length == 0) {
-      response = 'No messages found'
+      response = 'No messages found.'
     }
 
     res.json({ message: 'Messages found to task', response })
@@ -55,7 +49,15 @@ const PostMessageById = async(req, res, next) => {
       throw new InvalidParams(['taskId'])
     }
 
-    await MessageAuth(taskId, req.id, req.role)
+    // Check if the supplied Id is a valid Mongoose id
+    Message.CheckId(taskId)
+
+    // Check if the task exists
+    const task = await Task.CheckIfExists(taskId)
+
+    // Check if the user has the right to post messages to the task
+    Task.RightToTask(req.role, task.client, req.id)
+
     const message = new Message({
       message: messageText,
       from: req.id,
