@@ -1,5 +1,6 @@
 require('dotenv').config()
 const express = require('express')
+const fileUpload = require('express-fileupload')
 const app = express()
 const PORT = process.env.PORT || 8000
 
@@ -9,6 +10,9 @@ const Logger = require('./middleware/Logger')
 const errorHandler = require('./middleware/errorHandler')
 const routes = require('./routes/routes')
 
+app.use(fileUpload({
+  createParentPath: true
+}));
 app.use(express.json())
 app.use(Logger)
 app.use(routes)
