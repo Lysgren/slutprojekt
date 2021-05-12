@@ -20,6 +20,16 @@ class InvalidParams extends KnegError {
   }
 }
 
+class InvalidQuery extends KnegError {
+  // 400 Bad request
+  constructor(fields) {
+    super()
+    this.fields = fields
+    this.message = `Invalid Query, values cant be negative: ${this.fields.join(', ')}`
+    this.statusCode = 400
+  }
+}
+
 class BadRole extends KnegError {
   // 403 Forbidden
   constructor() {
@@ -33,7 +43,7 @@ class InvalidCredentials extends KnegError {
   // 403 Forbidden
   constructor() {
     super()
-    this.message = 'Invalid credentials'
+    this.message = 'Invalid credentials, you do not have access to this'
     this.statusCode = 403
   }
 }
@@ -83,6 +93,15 @@ class DoesNotExist extends KnegError {
   }
 }
 
+class InvalidId extends KnegError {
+    // 400 Bad request
+    constructor() {
+      super()
+      this.message = 'Error, supplied Id is invalid'
+      this.statusCode = 400
+    }
+}
+
 class DatabaseError extends KnegError {
   // 500 Internal Server Error
   constructor() {
@@ -96,6 +115,7 @@ module.exports = {
   KnegError,
   InvalidBody,
   InvalidParams,
+  InvalidQuery,
   BadRole,
   InvalidCredentials,
   InvalidToken,
@@ -103,5 +123,6 @@ module.exports = {
   Unauthorized,
   UserExists,
   DoesNotExist,
+  InvalidId,
   DatabaseError
 }

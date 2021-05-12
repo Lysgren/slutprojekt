@@ -1,8 +1,6 @@
-const Message = require('../models/Message')
-const { parseQuery } = require('../middleware/parseQuery')
-
-const { InvalidBody, InvalidParams, InvalidCredentials, DoesNotExist } = require('../errors')
 const Task = require('../models/Task')
+const Message = require('../models/Message')
+const { InvalidBody, InvalidParams, InvalidCredentials, InvalidQuery, DoesNotExist } = require('../errors')
 
 const MessageAuth = async(taskId, clientId, role) => {
   const task = await Task.findOne({ _id: taskId })
@@ -11,7 +9,6 @@ const MessageAuth = async(taskId, clientId, role) => {
   }
 
   if (role === 'CLIENT' && !task.client.equals(clientId)) {
-    console.log('Throwing error')
     throw new InvalidCredentials()
   }
 }
@@ -23,13 +20,17 @@ const GetMessageById = async(req, res, next) => {
     if ( !taskId ) {
       throw new InvalidParams(['taskId'])
     }
-    
-    // const { page, pageSize } = parseQuery(req.query)
-    // console.log(page, pageSize)
 
-    let response = await Message.find({ task: taskId })
+    const page = Number(req.query.page) || 0
+    const pageSize = Number(req.query.pageSize) || 20
+    if (page < 0 || pageSize < 0) {
+      throw new InvalidQuery(['page', 'pageSize'])
+    }
+
+    Message.CheckId(taskId)
 
     await MessageAuth(taskId, req.id, req.role)
+    let response = await Message.GetPage(taskId, page, pageSize)
 
     if (response.length == 0) {
       response = 'No messages found'
@@ -50,15 +51,11 @@ const PostMessageById = async(req, res, next) => {
     }
 
     const taskId = req.params.taskId
-    if (!taskId) {
+    if ( !taskId ) {
       throw new InvalidParams(['taskId'])
     }
 
-    const auth = await MessageAuth(taskId, req.id, req.role)
-    if ( !auth ) {
-      throw new InvalidCredentials()
-    }
-
+    await MessageAuth(taskId, req.id, req.role)
     const message = new Message({
       message: messageText,
       from: req.id,
@@ -67,7 +64,6 @@ const PostMessageById = async(req, res, next) => {
 
     const response = await message.save()
     res.json({ message: 'Succesfully posted message!', response })
-
   } catch (error) {
     next(error)
   }
@@ -77,23 +73,23 @@ const PostMessageById = async(req, res, next) => {
   const DeleteMessageById = async(req, res, next) => {
     try {
       const msg_id = req.params.msg_id
-      if (!msg_id) {
-        throw new InvalidParams(['id'])
+      if ( !msg_id ) {
+        throw new InvalidParams(['msg_id'])
       }
 
-      const message = await Message.findOne({ _id: msg_id })
-      console.log(message)
+      // Check if supplied msg_id is valid Mongoose id
+      Message.CheckId(msg_id)
 
-      console.log(req.id)
-      console.log(message.from)
+      // Check if the message exists
+      const message = await Message.CheckIfExists(msg_id)
 
-      if (message.from != req.id) {
-        throw new InvalidCredentials()
-      }
-  
-      const response = await Message.deleteOne({ _id: msg_id })
-      res.json({ message: 'Message was deleted', response })
+      // Check if the user has the right to delete the message (admin and workers can delete all messages while clients can only delete their own messages)
+      Message.RightToDelete(req.role, message.from, req.id)
 
+      // Deletes the message
+      await Message.deleteOne({ _id: msg_id })
+ 
+      res.json({ message: 'Message was deleted' })
     } catch (error) {
       next(error)
     }
