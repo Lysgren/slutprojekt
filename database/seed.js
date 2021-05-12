@@ -46,13 +46,13 @@ const main = async () => {
     const elias = await SeedUsers('Elias@Elias.se', bcrypt.hashSync('password', 10), 'CLIENT')
   
     const taskOne = await SeedTasks('Big house', 'Its an awesome house with lots of rooms', david._id, oscar._id)
-    console.log('Task with messages: ', taskOne._id.toString())
+    // console.log('Task with messages: ', taskOne._id.toString())
 
     const message = await SeedMessages('DELETE ME!', oscar._id, taskOne._id)
-    console.log('Message to be deleted: ', message._id.toString())
+    // console.log('Message to be deleted: ', message._id.toString())
 
     const otherMessage = await SeedMessages('Hello Oscar!', david._id, taskOne._id)
-    console.log('Another message: ', otherMessage._id.toString())
+    // console.log('Another message: ', otherMessage._id.toString())
     
     await SeedMessages('Bananpaj', oscar._id, taskOne._id)
     await SeedMessages('Bananpaj', david._id, taskOne._id)

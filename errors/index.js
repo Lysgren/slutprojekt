@@ -75,6 +75,14 @@ class Unauthorized extends KnegError {
   }
 }
 
+class Forbidden extends KnegError {
+  constructor() {
+    super()
+    this.message = 'Forbidden'
+    this.statusCode = 403
+  }
+}
+
 class UserExists extends KnegError {
   // 401 Unauthorized
   constructor() {
@@ -111,6 +119,14 @@ class DatabaseError extends KnegError {
   }
 }
 
+class WrongMime extends KnegError {
+  constructor() {
+    super()
+    this.message = 'Only images are allowed to upload'
+    this.statusCode = 400
+  }
+}
+
 module.exports = {
   KnegError,
   InvalidBody,
@@ -124,5 +140,7 @@ module.exports = {
   UserExists,
   DoesNotExist,
   InvalidId,
-  DatabaseError
+  DatabaseError,
+  Forbidden,
+  WrongMime
 }

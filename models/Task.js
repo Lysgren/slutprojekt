@@ -34,9 +34,13 @@ const taskSchema = new Schema({
       return user.role === 'CLIENT'
     }
     */
+  },
+  done: {
+    type: Boolean,
+    default: false
   }
 })
-
+// skurt
 taskSchema.post('save', (error, doc, next) => {
   if (error.name === 'MongoError' && error.code === 11000) {
     console.log(error)
