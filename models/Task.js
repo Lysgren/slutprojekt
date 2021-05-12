@@ -34,10 +34,10 @@ const taskSchema = new Schema({
       return user.role === 'CLIENT'
     }
     */
-   done: {
-     type: Boolean,
-     default: false
-   }
+  },
+  done: {
+    type: Boolean,
+    default: false
   }
 })
 // skurt
