@@ -1,6 +1,6 @@
 const Task = require('../models/Task')
 const Message = require('../models/Message')
-const { InvalidBody, InvalidParams, InvalidQuery } = require('../errors')
+const { InvalidBody, InvalidParams } = require('../errors')
 
 // Worker, Clienter: Hämtar meddelanden från ett specifikt ärende
 const GetMessageById = async(req, res, next) => {
@@ -10,27 +10,18 @@ const GetMessageById = async(req, res, next) => {
       throw new InvalidParams(['taskId'])
     }
 
-    const page = Number(req.query.page) || 0
-    const pageSize = Number(req.query.pageSize) || 20
-    if (page < 0 || pageSize < 0) {
-      throw new InvalidQuery(['page', 'pageSize'])
-    }
-
-    // Check if the supplied Id is a valid Mongoose id
-    Message.CheckId(taskId)
-
     // Check if the task exists
     const task = await Task.CheckIfExists(taskId)
 
     // Check if the user has the right to post messages to the task
     Task.RightToTask(req.role, task.client, req.id)
 
-    let response = await Message.GetPage(taskId, page, pageSize)
-    if (response.length == 0) {
+    const messages = await Message.find({ task: taskId }).sort({ 'date': -1 })
+    if (messages.length == 0) {
       response = 'No messages found.'
     }
 
-    res.json({ message: 'Messages found to task', response })
+    res.json({ message: 'Messages found to task', messages })
   } catch (error) {
     next(error)
   }
@@ -48,9 +39,6 @@ const PostMessageById = async(req, res, next) => {
     if ( !taskId ) {
       throw new InvalidParams(['taskId'])
     }
-
-    // Check if the supplied Id is a valid Mongoose id
-    Message.CheckId(taskId)
 
     // Check if the task exists
     const task = await Task.CheckIfExists(taskId)
@@ -78,9 +66,6 @@ const PostMessageById = async(req, res, next) => {
       if ( !msg_id ) {
         throw new InvalidParams(['msg_id'])
       }
-
-      // Check if supplied msg_id is valid Mongoose id
-      Message.CheckId(msg_id)
 
       // Check if the message exists
       const message = await Message.CheckIfExists(msg_id)

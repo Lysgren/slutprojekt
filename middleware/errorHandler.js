@@ -1,11 +1,17 @@
-const { KnegError } = require('../errors/index')
+const { AppError } = require('../errors/index')
 const mongoose = require('mongoose')
 
 const errorHandler = (error, req, res, next) => {
-  if (error instanceof KnegError) {
+  if (error instanceof AppError) {
+    console.log(error)
     res.status(error.statusCode).json({ error: error.message })
   } else if (error instanceof mongoose.Error) {
-    res.status(500).json({ error: error.message })
+    console.log(error)
+    if (error instanceof mongoose.Error.CastError) {
+      res.status(400).json({ error: 'Error, supplied Id is invalid' })
+    } else {
+      res.status(500).json({ error: error.message })
+    }
   } else if (error.type === 'entity.parse.failed') {
     res.status(400).json({ error: 'Invalid JSON' })
   } else {

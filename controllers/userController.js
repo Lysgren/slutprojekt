@@ -1,19 +1,17 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
-const { InvalidBody, InvalidParam } = require('../errors')
+const { InvalidBody } = require('../errors')
 
 // Admin, Worker: Listar användare med query params
 const GetUsers = async (req, res, next) => {
-  const limit = Number(req.query.limit) || 10
-  const offset = (Number(req.query.page) - 1) * limit || 0
   const role = req.query.role
   const search = req.query.search
   let users
   try {
     if (role) {
-      users = await User.find({role}, {}, { skip: offset, limit }).select('-password')
+      users = await User.find({role}, {}, { skip: req.offset, limit: req.limit }).select('-password')
     } else {
-      users = await User.find({}, {}, { skip: offset, limit }).select('-password')
+      users = await User.find({}, {}, { skip: req.offset, limit: req.limit }).select('-password')
     }
     if (search) {
       const filteredUsers = users.filter(user => user.email.includes(search))
@@ -41,8 +39,8 @@ const SpecificUser = async (req, res, next) => {
 const RegisterUser = async (req, res, next) => {
   try {
     const { email, password, role } = req.body
-
     if (!email || !password || !role) { throw new InvalidBody() }
+    
     const hashedPassword = bcrypt.hashSync(password, 10)
     const user = new User({ email, password: hashedPassword, role })
 
@@ -61,7 +59,7 @@ const UpdateUser = async (req, res, next) => {
     const id = req.params.id
     const fields = ['email', 'role', 'password']
     const postedFields = fields.filter(field => req.body[field])
-    console.log(postedFields)
+
     if (postedFields.length === 0) {
       return res.status(400).json({error: `Provide something to change: ${fields.join(', ')}`})
     }
@@ -92,7 +90,7 @@ const UpdateUser = async (req, res, next) => {
 const DeleteUser = async (req, res, next) => {
   const id = req.params.id
   try {
-    const user = await User.deleteOne({_id: id})
+    await User.deleteOne({ _id: id })
     res.json({ message: 'Succesfully deleted user' })
   } catch (error) {
     next(error)

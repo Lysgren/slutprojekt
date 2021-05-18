@@ -1,7 +1,6 @@
 const Task = require('../models/Task')
 const uuid = require('uuid').v4
 const { InvalidParams, DoesNotExist, InvalidBody, Forbidden, WrongMime } = require('../errors')
-const { parseQuery } = require("../middleware/parseQuery")
 const User = require('../models/User')
 const Image = require('../models/Image')
 
@@ -20,8 +19,8 @@ const DeleteTask = async(req, res, next) => {
     }
 
     await Task.deleteOne({ _id: id })
-    Task.save()
-    res.json({ message: `Succesfully deleted task`, deletedTaskId: id })
+
+    res.json({ message: `Succesfully deleted task no ${id}` })
   } catch (error) {
     next(error)
   }
@@ -35,9 +34,11 @@ const CreateTask = async (req, res, next) => {
     if (!title || !description || !email) {
       throw new InvalidBody(['title', 'description', 'client'])
     }
+
     // clientId
-const { _id } = await User.findOne({email})
-            // workerID
+    const { _id } = await User.findOne({email})
+    
+    // workerID
     const worker = req.id
     const task = new Task({
       title,
@@ -57,18 +58,24 @@ const { _id } = await User.findOne({email})
 // Worker, Clients: Hämtar arbetarens ärenden
 const GetTasks = async (req, res, next) => {
   try {
-    // query
-    const { page, pageSize, email } = parseQuery(req.query)
-    if (!page || !pageSize || !email) {
-      throw new InvalidParam(["page", "pageSize", "email"])
-    }
-    console.log(email)
-        // clientId
-    const { _id } = await User.findOne({email})
-        // workerID
+    const { email, done } = req.query
+    let taskList
+
     const worker = req.id
-        // taskList
-    const taskList = await Task.find({worker, client:_id})
+
+    if (!email) {
+      taskList = await Task.find({ worker}, {}, { skip: req.offset, limit: req.limit })
+    } else {
+      const { _id } = await User.findOne({email})
+      taskList = await Task.find({ worker, client: _id }, {}, { skip: req.offset, limit: req.limit })
+    }
+
+    if (done === 'true') {
+      taskList = taskList.filter(task => task.done)
+    } else if (done === 'false') {
+      taskList = taskList.filter(task => !task.done)
+    }
+
     res.json({ message: 'Done', taskList })
   } catch (error) {
     next(error)
@@ -83,8 +90,12 @@ const GetTaskById = async (req, res, next) => {
     if (!id) {
       throw new InvalidParam(['id'])
     }
-        // task
-    const task = await Task.findOne({_id:id})
+
+    const task = await Task.findOne({ _id : id })
+    if (!task) {
+      throw new DoesNotExist()
+    }
+
     res.json({ message: 'Done', task })
   } catch (error) {
     next(error)
@@ -99,29 +110,24 @@ const PatchTask = async (req, res, next) => {
     if (!id) {
       throw new InvalidParam(['id'])
     }
-    // body
-    const { title, description, email, done } = req.body
-    if (!title || !description || !email ) {
-      throw new InvalidBody(['title', 'description', 'client'])
-    }
-    if (done != null) {
-      console.log("fake")
+
+    const fields = ['title', 'description', 'email', 'done']
+    const postedFields = fields.filter(field => req.body[field])
+    
+    if (postedFields.length === 0) {
+      return res.status(400).json({error: `Provide something to change: ${fields.join(', ')}`})
     }
 
-    //  || typeof done != Boolean
-    // clientId
-    const { _id } = await User.findOne({email})
+    const updateData = {}
+
+    for (const field of postedFields) {
+      updateData[field] = req.body[field]
+    }
+
     // workerId
     const worker = req.id
-    // task
 
-    const task = await Task.updateOne({_id:id},{
-      title,
-      description,
-      worker,
-      client: _id, 
-      done
-    })
+    const task = await Task.updateOne({_id: id, worker}, updateData)
     res.json({ message: 'Done' })
     await task.save()
   } catch {
@@ -131,11 +137,11 @@ const PatchTask = async (req, res, next) => {
 
 const uploadImage = async (req, res, next) => {
   try {
-    if (!req.files) {
+    if (!req.files.image) {
       throw new InvalidBody(['image'])
     }
     
-    const task = await Task.findById(req.params.id)
+    const task = await Task.CheckIfExists(req.params.id)
 
     if (req.id != task.worker.toString()) {
       throw new Forbidden() 
@@ -152,7 +158,6 @@ const uploadImage = async (req, res, next) => {
     file.mv(`./images/${fileUuid}.${mime[1]}`)
 
     const image = new Image({
-      image: file.data,
       mime: file.mimetype,
       uuid: fileUuid,
       name: file.name,
@@ -160,9 +165,8 @@ const uploadImage = async (req, res, next) => {
     })
 
     await image.save()
-    image.image = undefined
     res.status(200).json({
-      message: "Cool beans",
+      message: 'Image uploaded',
       image
     })
 
@@ -170,8 +174,6 @@ const uploadImage = async (req, res, next) => {
     next(error)
   }
 }
-
-
 
 module.exports = {
   DeleteTask,

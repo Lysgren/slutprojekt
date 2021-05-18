@@ -1,38 +1,38 @@
 const { Router } = require('express')
 const router = Router()
 const Auth = require('../middleware/Auth')
+const parseQuery = require('../middleware/parseQuery')
 const { UserController, MessageController, TaskController, GeneralController } = require('../controllers/index')
 
 // General endpoints
-router.post('/authenticate', GeneralController.Authenticate) // Done
-router.get('/me', Auth.Client, GeneralController.GetMe) // Done
-router.patch('/me', Auth.Client, GeneralController.PatchMe) // Done
-router.get('/users', Auth.Worker, UserController.GetUsers) // Ej tillgänglig för clients
-router.get('/users/:id', UserController.SpecificUser)
+router.post('/authenticate', GeneralController.Authenticate)
+router.get('/me', Auth('CLIENT', 'WORKER', 'ADMIN'), GeneralController.GetMe)
+router.patch('/me', Auth('CLIENT', 'WORKER', 'ADMIN'), GeneralController.PatchMe)
+router.get('/users', Auth('WORKER', 'ADMIN'), parseQuery, UserController.GetUsers) // Ej tillgänglig för clients
+router.get('/users/:id', Auth('ADMIN', 'WORKER', 'CLIENT'), UserController.SpecificUser)
 
-// Admin Endpoints
-router.post('/users', Auth.Admin, UserController.RegisterUser) // Done
-router.patch('/users/:id', Auth.Admin, UserController.UpdateUser)
-router.delete('/users/:id', UserController.DeleteUser)
-router.delete('/tasks/:id', Auth.Admin, TaskController.DeleteTask)
+// ADMIN Endpoints
+router.post('/users', Auth('ADMIN'), UserController.RegisterUser)
+router.patch('/users/:id', Auth('ADMIN'), UserController.UpdateUser)
+router.delete('/users/:id', Auth('ADMIN'), UserController.DeleteUser)
+router.delete('/tasks/:id', Auth('ADMIN'), TaskController.DeleteTask)
 
-// Worker Endpoints
-router.post('/tasks', Auth.Worker, TaskController.CreateTask)
-router.get('/tasks', Auth.Worker, TaskController.GetTasks)
-router.get('/tasks/:id', Auth.Worker, TaskController.GetTaskById)
-router.patch('/tasks/:id', Auth.Worker, TaskController.PatchTask)
-router.post('/tasks/:id/images', Auth.Worker, TaskController.uploadImage)
-// Endpoint is in Admin endpoints. router.delete('/users/:id')
-router.get('/tasks/:taskId/messages', Auth.Client, MessageController.GetMessageById)
-router.post('/tasks/:taskId/messages', Auth.Client, MessageController.PostMessageById)
-router.delete('/messages/:msg_id', Auth.Client, MessageController.DeleteMessageById)
-// To be fixed router.post('/tasks/:id/image')
+// WORKER Endpoints
+router.post('/tasks',Auth('WORKER'), TaskController.CreateTask)
+router.get('/tasks', Auth('ADMIN', 'WORKER', 'CLIENT'), parseQuery, TaskController.GetTasks)
+router.get('/tasks/:id', Auth('ADMIN', 'WORKER', 'CLIENT'), TaskController.GetTaskById)
+router.patch('/tasks/:id', Auth('WORKER'), TaskController.PatchTask)
+router.post('/tasks/:id/images', Auth('ADMIN', 'WORKER'), TaskController.uploadImage)
 
-// Client Endpoints
-// Endpoint is in Worker endpoints. router.get('/tasks', TaskController.GetClientTasks)
-// Endpoint is in Worker endpoints. router.get('/tasks/id', TaskController.GetTaskById)
-// Endpoint is in Worker endpoints. router.get('/tasks/:id/messages', MessageController.GetMessageById)
-// Endpoint is in Worker endpoints. router.post('/tasks/:id/messages', MessageController.PostMessageById)
-// Endpoint is in Worker endpoints. router.delete('/tasks/:id/messages', MessageController.DeleteMessageById)
+router.get('/tasks/:taskId/messages', Auth('ADMIN', 'WORKER', 'CLIENT'), MessageController.GetMessageById)
+router.post('/tasks/:taskId/messages', Auth('ADMIN', 'WORKER', 'CLIENT'), MessageController.PostMessageById)
+router.delete('/messages/:msg_id', Auth('ADMIN', 'WORKER', 'CLIENT'), MessageController.DeleteMessageById)
+
+// CLIENT Endpoints
+// Endpoint is in WORKER endpoints. router.get('/tasks', TaskController.GetClientTasks)
+// Endpoint is in WORKER endpoints. router.get('/tasks/id', TaskController.GetTaskById)
+// Endpoint is in WORKER endpoints. router.get('/tasks/:id/messages', MessageController.GetMessageById)
+// Endpoint is in WORKER endpoints. router.post('/tasks/:id/messages', MessageController.PostMessageById)
+// Endpoint is in WORKER endpoints. router.delete('/tasks/:id/messages', MessageController.DeleteMessageById)
 
 module.exports = router

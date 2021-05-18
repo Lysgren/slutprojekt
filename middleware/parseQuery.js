@@ -1,13 +1,15 @@
-module.exports = {
-  parseQuery: (query) => {
-    const email = query.email
-    const page = +query.page || 1
-    let pageSize = +query.pageSize || 10
-    pageSize = pageSize > 10 ? 10 : pageSize
-    pageSize = pageSize < 1 ? 1 : pageSize
-    return { page, pageSize, email }
-  },
-}
+const { InvalidQuery, RequestLimit } = require('../errors/index')
 
-// handles query
-// reused and modified logic
+module.exports = (req, res, next) => {
+  req.limit = Number(req.query.limit) || 10
+  req.offset = (Number(req.query.page) - 1) * limit || 0
+
+  if (req.limit >= 1000) {
+    throw new RequestLimit()
+  }
+
+  if (offset < 0 || limit < 0) {
+    throw new InvalidQuery(['page', 'limit'])
+  }
+  next()
+}

@@ -1,6 +1,6 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
-const { NoAuthorization, BadRole, InvalidToken } = require('../errors/index')
+const { NoAuthorization, InvalidRole, InvalidToken } = require('../errors/index')
 
 const correctToken = (authorization) => {
   if (!authorization) {
@@ -17,59 +17,23 @@ const correctToken = (authorization) => {
   }
 }
 
-const Client = (req, res, next) => {
-  try {
-    const { id, email, role } = correctToken(req.headers.authorization)
-    
-    if (role === 'CLIENT' || role === 'WORKER' || role === 'ADMIN') {
-      req.id = id
-      req.email = email
-      req.role = role
-      next()
-    } else {
-      throw new BadRole()
+const Auth = (...roles) => {
+  return (req, res, next) => {
+    try {
+      const { id, email, role } = correctToken(req.headers.authorization)
+
+      if ( roles.includes(role) ) {
+        req.id = id
+        req.email = email
+        req.role = role
+        next()
+      } else {
+        throw new InvalidRole()
+      }
+    } catch(error) {
+      next(error)
     }
-  } catch (error) {
-    next(error)
   }
 }
 
-const Worker = (req, res, next) => {
-  try {
-    const { id, email, role } = correctToken(req.headers.authorization)
-    console.log(role)
-    if (role === 'WORKER' || role === 'ADMIN') {
-      req.id = id
-      req.email = email
-      req.role = role
-      next()
-    } else {
-      throw new BadRole()
-    }
-  } catch (error) {
-    next(error)
-  }
-}
-
-const Admin = (req, res, next) => {
-  try {
-    const { id, email, role } = correctToken(req.headers.authorization)
-    
-    if (role === 'ADMIN') {
-      req.id = id
-      req.email = email
-      req.role = role
-      next()
-    } else {
-      throw new BadRole()
-    }
-  } catch (error) {
-    next(error)
-  }
-}
-
-module.exports = {
-  Client,
-  Worker,
-  Admin
-}
+module.exports = Auth

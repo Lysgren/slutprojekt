@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 
 const mongoose = require('mongoose')
 const { Schema } = mongoose
-const { UserExists, Unauthorized } = require('../errors')
+const { UserExists, InvalidCredentials } = require('../errors')
 
 const userSchema = new Schema({
   email: {
@@ -40,7 +40,7 @@ userSchema.post('save', (error, doc, next) => {
 userSchema.methods.Authenticate = function (password) {
   comparePassword = bcrypt.compareSync(password, this.password)
   if ( !comparePassword ) {
-    throw new Unauthorized()
+    throw new InvalidCredentials()
   }
 
   const token = jwt.sign({ id: this._id, email: this.email, role: this.role }, process.env.ENCRYPTION, { expiresIn:'7d' })

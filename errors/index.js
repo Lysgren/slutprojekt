@@ -1,6 +1,6 @@
-class KnegError extends Error {}
+class AppError extends Error {}
 
-class InvalidBody extends KnegError {
+class InvalidBody extends AppError {
   // 400 Bad request
   constructor(fields) {
     super()
@@ -10,7 +10,7 @@ class InvalidBody extends KnegError {
   }
 }
 
-class InvalidParams extends KnegError {
+class InvalidParams extends AppError {
   // 400 Bad request
   constructor(fields) {
     super()
@@ -20,7 +20,7 @@ class InvalidParams extends KnegError {
   }
 }
 
-class InvalidQuery extends KnegError {
+class InvalidQuery extends AppError {
   // 400 Bad request
   constructor(fields) {
     super()
@@ -30,7 +30,7 @@ class InvalidQuery extends KnegError {
   }
 }
 
-class BadRole extends KnegError {
+class InvalidRole extends AppError {
   // 403 Forbidden
   constructor() {
     super()
@@ -39,16 +39,16 @@ class BadRole extends KnegError {
   }
 }
 
-class InvalidCredentials extends KnegError {
-  // 403 Forbidden
+class InvalidCredentials extends AppError {
+  // 401 Unauthorized
   constructor() {
     super()
     this.message = 'Invalid credentials, you do not have access to this'
-    this.statusCode = 403
+    this.statusCode = 401
   }
 }
 
-class InvalidToken extends KnegError {
+class InvalidToken extends AppError {
   // 403 Forbidden
   constructor() {
     super()
@@ -57,7 +57,7 @@ class InvalidToken extends KnegError {
   }
 }
 
-class NoAuthorization extends KnegError {
+class NoAuthorization extends AppError {
   // 400 Bad request
   constructor() {
     super()
@@ -66,16 +66,8 @@ class NoAuthorization extends KnegError {
   }
 }
 
-class Unauthorized extends KnegError {
-  // 401 Unauthorized
-  constructor() {
-    super()
-    this.message = 'Unauthorized, Maybe better luck next time.'
-    this.statusCode = 401
-  }
-}
-
-class Forbidden extends KnegError {
+class Forbidden extends AppError {
+  // 403 Forbidden
   constructor() {
     super()
     this.message = 'Forbidden'
@@ -83,16 +75,16 @@ class Forbidden extends KnegError {
   }
 }
 
-class UserExists extends KnegError {
-  // 401 Unauthorized
+class UserExists extends AppError {
+  // 400 Bad Request
   constructor() {
     super()
     this.message = 'Error, user already exists'
-    this.statusCode = 401
+    this.statusCode = 400
   }
 }
 
-class DoesNotExist extends KnegError {
+class DoesNotExist extends AppError {
   // 404 Does not exist
   constructor() {
     super()
@@ -101,16 +93,7 @@ class DoesNotExist extends KnegError {
   }
 }
 
-class InvalidId extends KnegError {
-    // 400 Bad request
-    constructor() {
-      super()
-      this.message = 'Error, supplied Id is invalid'
-      this.statusCode = 400
-    }
-}
-
-class DatabaseError extends KnegError {
+class DatabaseError extends AppError {
   // 500 Internal Server Error
   constructor() {
     super()
@@ -119,7 +102,15 @@ class DatabaseError extends KnegError {
   }
 }
 
-class WrongMime extends KnegError {
+class RequestLimit extends AppError {
+  constructor() {
+    super()
+    this.message = 'Bad request. The request limit is 1000.'
+    this.statusCode = 400
+  }
+}
+
+class WrongMime extends AppError {
   constructor() {
     super()
     this.message = 'Only images are allowed to upload'
@@ -128,19 +119,18 @@ class WrongMime extends KnegError {
 }
 
 module.exports = {
-  KnegError,
+  AppError,
   InvalidBody,
   InvalidParams,
   InvalidQuery,
-  BadRole,
+  InvalidRole,
   InvalidCredentials,
   InvalidToken,
   NoAuthorization,
-  Unauthorized,
   UserExists,
   DoesNotExist,
-  InvalidId,
   DatabaseError,
   Forbidden,
+  RequestLimit,
   WrongMime
 }

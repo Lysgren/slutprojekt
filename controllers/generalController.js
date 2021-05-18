@@ -1,6 +1,6 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
-const { InvalidBody, Unauthorized } = require('../errors')
+const { InvalidBody, InvalidCredentials } = require('../errors')
 
 const Authenticate = async(req, res, next) => {
   try {
@@ -13,7 +13,7 @@ const Authenticate = async(req, res, next) => {
     const user = await User.findOne({ email })
 
     if ( !user ) {
-      throw new Unauthorized()
+      throw new InvalidCredentials()
     }
 
     const token = await user.Authenticate(password)
