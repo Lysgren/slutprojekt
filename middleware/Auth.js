@@ -2,14 +2,12 @@ require('dotenv').config()
 const jwt = require('jsonwebtoken')
 const { NoAuthorization, InvalidRole, InvalidToken } = require('../errors/index')
 
-const correctToken = (authorization) => {
-  if (!authorization) {
-    throw new NoAuthorization()
-  }
-  
-  const token = authorization.replace('Bearer ', '')
-
+const correctToken = (token) => {
   try {
+    if (!token) {
+      throw new NoAuthorization()
+    }
+
     const { id, email, role } = jwt.verify(token, process.env.ENCRYPTION)
     return { id, email, role }
   } catch (error) {
@@ -20,7 +18,8 @@ const correctToken = (authorization) => {
 const Auth = (...roles) => {
   return (req, res, next) => {
     try {
-      const { id, email, role } = correctToken(req.headers.authorization)
+      const token = req.headers.authorization.replace('Bearer ', '')
+      const { id, email, role } = correctToken(token)
 
       if ( roles.includes(role) ) {
         req.id = id

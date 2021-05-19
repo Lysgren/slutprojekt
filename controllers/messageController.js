@@ -16,7 +16,8 @@ const GetMessageById = async(req, res, next) => {
     // Check if the user has the right to post messages to the task
     Task.RightToTask(req.role, task.client, req.id)
 
-    const messages = await Message.find({ task: taskId }).sort({ 'date': -1 })
+    const messages = await Message.find({ task: taskId }, {}, { skip: req.offset, limit: req.limit }).sort({ 'date': -1 })
+    
     if (messages.length == 0) {
       response = 'No messages found.'
     }

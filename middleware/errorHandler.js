@@ -3,10 +3,8 @@ const mongoose = require('mongoose')
 
 const errorHandler = (error, req, res, next) => {
   if (error instanceof AppError) {
-    console.log(error)
     res.status(error.statusCode).json({ error: error.message })
   } else if (error instanceof mongoose.Error) {
-    console.log(error)
     if (error instanceof mongoose.Error.CastError) {
       res.status(400).json({ error: 'Error, supplied Id is invalid' })
     } else {

@@ -1,6 +1,6 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
-const { InvalidBody, InvalidCredentials } = require('../errors')
+const { InvalidBody, InvalidCredentials, DoesNotExist } = require('../errors')
 
 const Authenticate = async(req, res, next) => {
   try {
@@ -34,6 +34,11 @@ const PatchMe = async(req, res, next) => {
 
     if ( !newPassword ) {
       throw new InvalidBody(['newPassword'])
+    }
+
+    const user = await User.findOne({ email: req.email })
+    if ( !user ) {
+      throw new DoesNotExist()
     }
     
     const hashedPassword = bcrypt.hashSync(newPassword, 10)

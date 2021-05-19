@@ -7,7 +7,8 @@ const Image = require('../models/Image')
 // Admin: Raderar ett ärende
 const DeleteTask = async(req, res, next) => {
   try {
-    // taskID
+    console.log('Delete task')
+    
     const { id } = req.params
     if ( !id ) {
       throw new InvalidParams(['taskId'])

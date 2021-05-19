@@ -24,7 +24,7 @@ router.get('/tasks/:id', Auth('ADMIN', 'WORKER', 'CLIENT'), TaskController.GetTa
 router.patch('/tasks/:id', Auth('WORKER'), TaskController.PatchTask)
 router.post('/tasks/:id/images', Auth('ADMIN', 'WORKER'), TaskController.uploadImage)
 
-router.get('/tasks/:taskId/messages', Auth('ADMIN', 'WORKER', 'CLIENT'), MessageController.GetMessageById)
+router.get('/tasks/:taskId/messages', Auth('ADMIN', 'WORKER', 'CLIENT'), parseQuery, MessageController.GetMessageById)
 router.post('/tasks/:taskId/messages', Auth('ADMIN', 'WORKER', 'CLIENT'), MessageController.PostMessageById)
 router.delete('/messages/:msg_id', Auth('ADMIN', 'WORKER', 'CLIENT'), MessageController.DeleteMessageById)
 
