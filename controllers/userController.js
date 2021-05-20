@@ -39,7 +39,7 @@ const SpecificUser = async (req, res, next) => {
 const RegisterUser = async (req, res, next) => {
   try {
     const { email, password, role } = req.body
-    if (!email || !password || !role) { throw new InvalidBody() }
+    if (!email || !password || !role) { throw new InvalidBody(['email', 'password', 'role']) }
     
     const hashedPassword = bcrypt.hashSync(password, 10)
     const user = new User({ email, password: hashedPassword, role })
