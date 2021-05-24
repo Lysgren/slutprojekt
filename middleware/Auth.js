@@ -18,6 +18,10 @@ const correctToken = (token) => {
 const Auth = (...roles) => {
   return (req, res, next) => {
     try {
+      if ( !req.headers.authorization ) {
+        throw new NoAuthorization()
+      }
+
       const token = req.headers.authorization.replace('Bearer ', '')
       const { id, email, role } = correctToken(token)
 

@@ -17,23 +17,11 @@ const taskSchema = new Schema({
     type: ObjectId,
     ref: 'User',
     required: true,
-/* 
-    validate: async function (id) {
-      const user = await User.findOne({_id: id})
-      return user.role === 'WORKER'
-    }
- */
   },
   client: {
     type: ObjectId,
     ref: 'User',
     required: true,
-/* 
-    validate: async function (id) {
-      const user = await User.findOne({_id: id})
-      return user.role === 'CLIENT'
-    }
- */
   },
   done: {
     type: Boolean

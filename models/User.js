@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 
 const mongoose = require('mongoose')
 const { Schema } = mongoose
-const { UserExists, InvalidCredentials } = require('../errors')
+const { UserExists, InvalidCredentials, InvalidNewUserRole } = require('../errors')
 
 const userSchema = new Schema({
   email: {
@@ -12,11 +12,6 @@ const userSchema = new Schema({
     required: true,
     unique: true,
     lowercase: true,
-/* 
-    validate: (value) => {
-      return validator.isEmail(value)
-    }
- */
   },
   password: {
     type: String,
@@ -30,6 +25,9 @@ const userSchema = new Schema({
 })
 
 userSchema.post('save', (error, doc, next) => {
+  if (error.errors.role) {
+    throw new InvalidNewUserRole()
+  }
   if (error.name === 'MongoError' && error.code === 11000) {
     throw new UserExists()
   } else {

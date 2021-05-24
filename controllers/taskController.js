@@ -62,15 +62,27 @@ const GetTasks = async (req, res, next) => {
     const { email, done } = req.query
     let taskList
 
-    const worker = req.id
+    const id = req.id
+    const role = req.role
 
-    if (!email) {
-      taskList = await Task.find({ worker}, {}, { skip: req.offset, limit: req.limit })
-    } else {
-      const { _id } = await User.findOne({email})
-      taskList = await Task.find({ worker, client: _id }, {}, { skip: req.offset, limit: req.limit })
+    const queryFilter = {}
+    if (role === 'CLIENT') {
+      queryFilter.client = id
+    } else if (role === 'WORKER') {
+      queryFilter.worker = id
     }
 
+    if (!email || req.role === 'CLIENT') {
+      taskList = await Task.find(queryFilter, {}, { skip: req.offset, limit: req.limit })
+    } else {
+      const user = await User.findOne({email})
+      if ( !user ) {
+        throw new DoesNotExist()
+      }
+
+      taskList = await Task.find({ worker: id, client: user._id }, {}, { skip: req.offset, limit: req.limit })
+    }
+    
     if (done === 'true') {
       taskList = taskList.filter(task => task.done)
     } else if (done === 'false') {

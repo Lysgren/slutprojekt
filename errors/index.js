@@ -118,6 +118,14 @@ class WrongMime extends AppError {
   }
 }
 
+class InvalidNewUserRole extends AppError {
+  constructor() {
+    super()
+    this.message = "Role has to be one of following: 'CLIENT', 'WORKER' or 'ADMIN'"
+    this.statusCode = 400
+  }
+}
+
 module.exports = {
   AppError,
   InvalidBody,
@@ -126,6 +134,7 @@ module.exports = {
   InvalidRole,
   InvalidCredentials,
   InvalidToken,
+  InvalidNewUserRole,
   NoAuthorization,
   UserExists,
   DoesNotExist,
